@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>By Owl Post</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#170f09;
+    --bg-desk-a:#241708;
+    --bg-desk-b:#0f0a06;
+    --parchment:#ecdcb2;
+    --parchment-dark:#dcc48c;
+    --parchment-edge:#c9a962;
+    --ink:#3b2917;
+    --ink-soft:#6b5238;
+    --wax:#7e2431;
+    --wax-dark:#551621;
+    --wax-light:#a3384a;
+    --gold:#c39a4f;
+    --gold-bright:#e6c37a;
+    --gold-dim:#8a6a34;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    width:100%;
+    min-height:100%;
+    background:var(--bg-deep);
+    overflow-x:hidden;
+  }
+
+  body{
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Cormorant Garamond', serif;
+    position:relative;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+  }
+
+  /* ---------- SCENE / DESK BACKGROUND ---------- */
+  .scene{
+    position:relative;
+    width:100%;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:8vh 5vw;
+    background:
+      radial-gradient(ellipse 60% 45% at 50% 38%, rgba(196,155,90,0.10), transparent 70%),
+      radial-gradient(ellipse 90% 70% at 50% 100%, var(--bg-desk-a), var(--bg-desk-b) 75%);
+    overflow:hidden;
+    opacity:0;
+    animation: sceneFadeIn 1.8s ease-out 0.15s forwards;
+  }
+
+  @keyframes sceneFadeIn{
+    from{ opacity:0; }
+    to{ opacity:1; }
+  }
+
+  .desk-grain{
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(
+      92deg,
+      rgba(0,0,0,0.12) 0px,
+      rgba(0,0,0,0.12) 1px,
+      transparent 2px,
+      transparent 34px
+    );
+    mix-blend-mode:overlay;
+    pointer-events:none;
+  }
+
+  .glow{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(40px);
+    pointer-events:none;
+    background:radial-gradient(circle, rgba(230,195,122,0.35), transparent 70%);
+  }
+  .glow-a{ width:340px; height:340px; top:8%; left:10%; animation:flicker 5.5s ease-in-out infinite; }
+  .glow-b{ width:260px; height:260px; bottom:5%; right:8%; animation:flicker 6.5s ease-in-out infinite 1.2s; }
+
+  @keyframes flicker{
+    0%,100%{ opacity:0.55; transform:scale(1); }
+    30%{ opacity:0.8; transform:scale(1.06); }
+    55%{ opacity:0.5; transform:scale(0.97); }
+    75%{ opacity:0.7; transform:scale(1.03); }
+  }
+
+  .mote{
+    position:absolute;
+    width:3px; height:3px;
+    border-radius:50%;
+    background:var(--gold-bright);
+    opacity:0;
+    pointer-events:none;
+    animation:moteFloat 9s ease-in infinite;
+  }
+  @keyframes moteFloat{
+    0%{ opacity:0; transform:translateY(0) translateX(0); }
+    10%{ opacity:0.55; }
+    90%{ opacity:0.25; }
+    100%{ opacity:0; transform:translateY(-38vh) translateX(var(--drift, 20px)); }
+  }
+
+  /* ---------- STAGE ---------- */
+  .stage{
+    position:relative;
+    width:min(92vw, 460px);
+    height:min(78vw, 380px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* ---------- CALL HEDWIG BUTTON ---------- */
+  .call-btn{
+    position: absolute;
+    z-index: 10;
+    padding: 12px 28px;
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-shadow: 0 0 15px rgba(230, 195, 122, 0.4);
+    transition: all 0.3s ease;
+    animation: textPulseGlow 2.5s infinite;
+  }
+  .call-btn:hover{
+    transform: scale(1.05);
+    text-shadow: 0 0 25px rgba(230, 195, 122, 0.8);
+  }
+  .stage.flying .call-btn, .stage.delivered .call-btn, .stage.opened .call-btn{
+    display: none;
+  }
+
+  @keyframes textPulseGlow{
+    0%, 100% { text-shadow: 0 0 10px rgba(230, 195, 122, 0.3); }
+    50% { text-shadow: 0 0 25px rgba(230, 195, 122, 0.7); }
+  }
+
+  /* ---------- ENVELOPE ---------- */
+  .envelope-btn{
+    all:unset;
+    position:absolute;
+    cursor:pointer;
+    width:min(78vw, 340px);
+    aspect-ratio: 3 / 2;
+    z-index:5;
+    opacity:0;
+    pointer-events: none;
+    transform: translateY(-40px) scale(0.9);
+  }
+  
+  /* Envelope lands and begins to continuously bounce */
+  .stage.delivered .envelope-btn {
+    animation: 
+      envelopeLand 0.5s cubic-bezier(.22,.99,.35,1.15) forwards,
+      envelopeBounce 2.5s ease-in-out 0.5s infinite;
+    pointer-events: auto;
+  }
+
+  /* Envelope plummets down only once the letter has fully emerged and
+     is holding clear of it (see the 35%-70% hold in extractLetter).
+     The opacity/transform below match envelopeDropAway's 0% keyframe
+     exactly, so the envelope stays visible and landed through the
+     animation-delay window instead of reverting to its hidden base
+     state (opacity:0) before the fall starts. */
+  .stage.delivered.opened .envelope-btn {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
+    animation: envelopeDropAway 0.8s ease-in forwards 1.1s;
+  }
+
+  @keyframes envelopeLand{
+    0%{ transform:translateY(-60px) scale(0.9) rotate(4deg); opacity:0; }
+    100%{ transform:translateY(0) scale(1) rotate(0deg); opacity:1; }
+  }
+
+  @keyframes envelopeBounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(1deg); }
+  }
+  
+  @keyframes envelopeDropAway {
+    0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(120vh) rotate(25deg); opacity: 0; pointer-events: none; }
+  }
+
+  .envelope-btn:focus-visible .envelope{
+    outline:2px solid var(--gold-bright);
+    outline-offset:6px;
+    border-radius:4px;
+  }
+
+  .envelope{
+    position:relative;
+    width:100%;
+    height:100%;
+    filter: drop-shadow(0 18px 26px rgba(0,0,0,0.55));
+    transition: transform 0.4s ease;
+  }
+  .envelope-btn:hover .envelope,
+  .envelope-btn:focus-visible .envelope{
+    transform: translateY(-4px);
+  }
+
+  .env-back{
+    position:absolute; inset:0;
+    background: linear-gradient(155deg, var(--parchment-dark), var(--parchment) 55%, var(--parchment-dark));
+    border:1px solid var(--parchment-edge);
+    border-radius:3px;
+  }
+  .env-flap{
+    position:absolute;
+    top:0; left:0; right:0;
+    height:58%;
+    background:linear-gradient(160deg, var(--parchment), var(--parchment-dark));
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    transform-origin: top center;
+    transition: transform 0.7s cubic-bezier(.6,.1,.3,1);
+    z-index:3;
+  }
+  .stage.opened .env-flap{
+    transform: rotateX(178deg);
+  }
+
+  .env-address{
+    position:absolute;
+    left:0; right:0;
+    /* Sits low enough to clear the wax seal centred at 50% of the envelope. */
+    bottom:5%;
+    text-align:center;
+    font-family:'Mrs Saint Delafield', cursive;
+    color:var(--ink);
+    font-size:clamp(1.1rem, 5vw, 1.7rem);
+    letter-spacing:0.02em;
+    z-index:1;
+    pointer-events:none;
+  }
+  .env-address span{ display:block; font-size:0.62em; color:var(--ink-soft); margin-top:2px; }
+
+  .seal{
+    position:absolute;
+    left:50%; top:50%;
+    width:15%;
+    aspect-ratio:1;
+    transform: translate(-50%, -50%);
+    z-index:4;
+  }
+  .seal-half{
+    position:absolute; inset:0;
+    border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, var(--wax-light), var(--wax) 55%, var(--wax-dark) 100%);
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.4), 0 3px 6px rgba(0,0,0,0.5);
+    transition: transform 0.55s cubic-bezier(.5,-0.2,.6,1.2), opacity 0.55s ease 0.05s;
+  }
+  .seal-half.left{ clip-path: inset(0 50% 0 0); }
+  .seal-half.right{ clip-path: inset(0 0 0 50%); }
+  .stage.opened .seal-half.left{ transform: translate(-130%, -60%) rotate(-35deg); opacity:0; }
+  .stage.opened .seal-half.right{ transform: translate(130%, 60%) rotate(35deg); opacity:0; }
+
+  .seal-emblem{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    z-index:1;
+    opacity:0.9;
+  }
+  .seal-emblem svg{ width:74%; height:74%; }
+  .stage.opened .seal-emblem{ transition:opacity 0.3s ease; opacity:0; }
+
+  .hint{
+    position:absolute;
+    bottom:-11%;
+    left:0; right:0;
+    text-align:center;
+    font-family:'Cinzel', serif;
+    font-size:clamp(0.62rem, 2.2vw, 0.78rem);
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--gold);
+    opacity:0;
+  }
+  .stage.delivered .hint {
+    animation: hintFade 1s ease 1s forwards, hintPulse 2.6s ease-in-out 2s infinite;
+  }
+  .stage.opened .hint{ animation:none; opacity:0; transition: opacity 0.3s ease; }
+  @keyframes hintFade{ to{ opacity:0.75; } }
+  @keyframes hintPulse{ 0%,100%{ opacity:0.75;} 50%{ opacity:0.35; } }
+
+  /* ---------- OWL ---------- */
+  .owl{
+    position:absolute;
+    width:min(75vw, 350px);
+    aspect-ratio: 1 / 1;
+    z-index:6;
+    top:-25%;
+    left:-25%;
+    opacity:0;
+    pointer-events:none;
+    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
+  }
+  .owl-frame{
+    position:relative;
+    width:100%;
+    height:100%;
+  }
+
+  .carried-letter{
+    position:absolute;
+    top:86%;
+    left:47%;
+    width:15%;
+    aspect-ratio: 3 / 2;
+    background: linear-gradient(155deg, var(--parchment-dark), var(--parchment));
+    border:1px solid var(--parchment-edge);
+    border-radius:2px;
+    box-shadow:0 3px 6px rgba(0,0,0,0.45);
+    opacity:0;
+    transform: translateY(0) rotate(-4deg) scale(1);
+    z-index:-1;
+  }
+  .stage.flying .carried-letter{
+    animation: carryAndDrop 2.5s ease-in forwards;
+  }
+  @keyframes carryAndDrop{
+    0%{ opacity:0; transform: translateY(0) rotate(-4deg) scale(1); }
+    12%{ opacity:1; }
+    50%{ opacity:1; transform: translateY(0) rotate(3deg) scale(1); }
+    58%{ opacity:1; transform: translateY(10%) rotate(14deg) scale(0.94); }
+    64%{ opacity:0; transform: translateY(90%) rotate(30deg) scale(0.65); }
+    100%{ opacity:0; }
+  }
+
+  .stage.flying .owl{
+    animation: owlSwoop 2.5s cubic-bezier(.4,.05,.35,1) forwards;
+  }
+
+  @keyframes owlSwoop{
+    0%{ opacity:0; top:-25%; left:-30%; transform:rotate(-12deg) scale(0.7); }
+    12%{ opacity:1; }
+    35%{ top:0%; left:30%; transform:rotate(4deg) scale(1.05); }
+    55%{ top:15%; left:55%; transform:rotate(8deg) scale(0.95); opacity:1; }
+    75%{ top:5%; left:85%; transform:rotate(-4deg) scale(0.9); opacity:1; }
+    100%{ top:-20%; left:140%; transform:rotate(-15deg) scale(0.8); opacity:0; }
+  }
+
+  .owl-frame .tailbot{ position:absolute; top:82%; left:42%; transform:translate(-50%,-50%) rotate(10deg); width:12%; height:25%; border-radius:40px 50px 140px 0px; background-color:#cbb689; animation:owlBob 5s infinite; }
+  .owl-frame .tailtop{ position:absolute; top:73%; left:43.5%; transform:translate(-50%,-50%) rotate(8deg); width:15%; height:17%; border-radius:40px 50px 140px 20px; background-color:#b39f74; animation:owlBob 5s infinite; }
+  .owl-frame .bod{ position:absolute; top:56%; left:50%; transform:translate(-50%,-50%); width:30%; height:42%; border-radius:40px 50px 140px 60px; background-color:#e2d3ac; animation:owlBob 5s infinite; }
+  .owl-frame .chest{ position:absolute; top:45%; left:53.5%; transform:translate(-50%,-50%); width:25%; height:20%; border-radius:20px 50px 70px 90px; background-color:var(--parchment); animation:owlBob 5s infinite; }
+  .owl-frame .head{ position:absolute; top:26%; left:50%; transform:translate(-50%,-50%); width:26%; height:20%; border-radius:70px 70px 10px 10px; background-color:var(--parchment); animation:owlFace 10s infinite; }
+  .owl-frame .headback{ position:absolute; top:26%; left:49%; transform:translate(-50%,-50%); width:26%; height:21.5%; border-radius:70px 70px 10px 10px; background-color:#cbb689; animation:owlHead 10s infinite; }
+  .owl-frame .beak{ position:absolute; top:31%; left:53%; transform:translate(-50%,-50%); width:1%; height:3%; border-radius:5px 10px 20px 2px; background-color:#5c4020; animation:owlMouth 10s infinite, owlBeak 10s infinite; }
+  .owl-frame .nose{ position:absolute; top:29.3%; left:53%; transform:translate(-50%,-50%); width:2%; height:1%; border-radius:5px; background-color:#8a7550; animation:owlMouth 10s infinite; }
+  .owl-frame .eyeleft{ position:absolute; top:25.4%; left:58%; transform:translate(-50%,-50%); width:4.4%; height:4%; border-radius:10px 5px; background-color:#4a3826; animation:owlEye 10s infinite; }
+  .owl-frame .eyeright{ position:absolute; top:25.5%; left:47%; transform:translate(-50%,-50%); width:4.5%; height:4%; border-radius:5px 10px; background-color:#4a3826; animation:owlEye 10s infinite; }
+  .owl-frame .irisleft{ position:absolute; top:25.4%; left:58%; transform:translate(-50%,-50%); width:3.2%; height:3%; border-radius:10px 5px; background-color:#e0a83c; animation:owlEye 10s infinite; }
+  .owl-frame .irisright{ position:absolute; top:25.5%; left:47.1%; transform:translate(-50%,-50%); width:3.6%; height:3%; border-radius:5px 10px; background-color:#e0a83c; animation:owlEye 10s infinite; }
+  .owl-frame .lightleft{ position:absolute; top:25.2%; left:58.5%; transform:translate(-50%,-50%); width:2%; height:2.1%; border-radius:5px; background-color:#241a10; animation:owlIris 10s infinite; }
+  .owl-frame .lightright{ position:absolute; top:25.4%; left:47.7%; transform:translate(-50%,-50%); width:2.1%; height:2%; border-radius:5px; background-color:#241a10; animation:owlIrisLeft 10s infinite; }
+  .owl-frame .wingleft{ position:absolute; top:61%; left:34%; transform:translate(-50%,-50%) rotate(3deg); width:12%; height:43%; border-radius:100px 10px 100px 0px; background-color:#e8dcc0; animation:owlBob 7s infinite; }
+  .owl-frame .armpitleft{ position:absolute; top:44%; left:34%; transform:translate(-50%,-50%); width:13%; height:15%; border-radius:100px 10px 100px 10px; background-color:#b39f74; animation:owlBob 7s infinite; }
+  .owl-frame .wingright{ position:absolute; top:61%; left:59%; transform:translate(-50%,-50%) rotate(3deg); width:12%; height:38%; border-radius:50px 10px 100px 0px; background-color:#ddc9a0; animation:owlBob 7s infinite; }
+  .owl-frame .armpitright{ position:absolute; top:44%; left:60%; transform:translate(-50%,-50%); width:13%; height:15%; border-radius:10px 70px 10px 100px; background-color:#b39f74; animation:owlBob 7s infinite; }
+  .owl-frame .thighleft{ position:absolute; top:75%; left:45%; transform:translate(-50%,-50%); width:9%; height:10%; border-radius:40px 20px 70px 20px; background-color:#9c8760; }
+  .owl-frame .thighright{ position:absolute; top:74%; left:51%; transform:translate(-50%,-50%); width:8%; height:10%; border-radius:40px 20px 70px 20px; background-color:#8a7550; }
+  .owl-frame .shinleft{ position:absolute; top:80%; left:43%; transform:translate(-50%,-50%) rotate(10deg); width:2%; height:5%; border-radius:40px 20px 70px 20px; background-color:#5c4530; }
+  .owl-frame .shinright{ position:absolute; top:79%; left:49%; transform:translate(-50%,-50%) rotate(10deg); width:2%; height:5%; border-radius:40px 20px 70px 20px; background-color:#5c4530; }
+  .owl-frame .footleft{ position:absolute; top:82%; left:44%; transform:translate(-50%,-50%) rotate(-10deg); width:2%; height:3%; border-radius:40px 20px 70px 20px; background-color:#5c4530; }
+  .owl-frame .footright{ position:absolute; top:81%; left:50%; transform:translate(-50%,-50%) rotate(-10deg); width:2%; height:3%; border-radius:40px 20px 70px 20px; background-color:#5c4530; }
+
+  .owl-frame [class^="spot"]{ position:absolute; background-color:#6b5238; animation:owlBobs 5s infinite; }
+  .owl-frame .spot0{ top:60%; left:50%; transform:translate(-50%,-50%); width:3%; height:1.5%; border-radius:10px 50px; }
+  .owl-frame .spot1{ top:60%; left:60%; transform:translate(-50%,-50%); width:2.5%; height:1.5%; border-radius:50px 10px; }
+  .owl-frame .spot2{ top:55%; left:45%; transform:translate(-50%,-50%); width:3%; height:1.5%; border-radius:10px 50px; }
+  .owl-frame .spot3{ top:55%; left:63%; transform:translate(-50%,-50%); width:2.5%; height:1.5%; border-radius:50px 10px; }
+  .owl-frame .spot4{ top:55%; left:55%; transform:translate(-50%,-50%); width:3%; height:1.5%; border-radius:50px 50px; }
+  .owl-frame .spot5{ top:65%; left:55%; transform:translate(-50%,-50%); width:3%; height:1.5%; border-radius:50px 50px; }
+  .owl-frame .spot6{ top:65%; left:47%; transform:translate(-50%,-50%); width:3%; height:1.5%; border-radius:10px 50px; }
+  .owl-frame .spot7{ top:65%; left:61%; transform:translate(-50%,-50%); width:2.5%; height:1.5%; border-radius:50px 10px; }
+  .owl-frame .spot8{ top:70%; left:57%; transform:translate(-50%,-50%); width:2%; height:1.5%; border-radius:50px 10px; }
+  .owl-frame .spot9{ top:70%; left:51%; transform:translate(-50%,-50%); width:2.5%; height:1.5%; border-radius:10px 50px; }
+
+  @keyframes owlFace{ 50%{ left:48%; } 90%{ left:51%; } }
+  @keyframes owlHead{ 50%{ left:50%; } 90%{ left:48%; } }
+  @keyframes owlMouth{ 50%{ left:47%; } 75%{ left:53%; } 90%{ left:55%; } }
+  @keyframes owlBeak{ 50%{ border-radius:10px 5px 2px 20px; } 75%,90%{ border-radius:5px 10px 20px 2px; } }
+  @keyframes owlEye{ 50%{ transform:translate(-140%, -50%); } 75%{ transform:translate(-50%, -50%); } 90%{ transform:translate(-10%, -50%); } }
+  @keyframes owlIris{ 50%{ transform:translate(-230%, -50%); } 75%{ transform:translate(-50%, -50%); } 90%{ transform:translate(-10%, -50%); } }
+  @keyframes owlIrisLeft{ 50%{ left:43%; } 75%{ left:47.7%; } 90%{ left:49%; } }
+  @keyframes owlBob{ 50%{ transform:translate(-50%, -54%); } 75%{ transform:translate(-50%, -50%); } 90%{ transform:translate(-50%, -49%); } }
+  @keyframes owlBobs{ 50%{ transform:translate(-50%, -140%); } 75%{ transform:translate(-50%, -50%); } 90%{ transform:translate(-50%, 0%); } }
+
+  .stage.flying .owl-frame .wingleft{ animation: flapWingL 0.18s ease-in-out infinite alternate; }
+  .stage.flying .owl-frame .wingright{ animation: flapWingR 0.18s ease-in-out infinite alternate; }
+  .stage.flying .owl-frame .armpitleft{ animation: flapArmL 0.18s ease-in-out infinite alternate; }
+  .stage.flying .owl-frame .armpitright{ animation: flapArmR 0.18s ease-in-out infinite alternate; }
+  @keyframes flapWingL{ from{ transform:translate(-50%,-50%) rotate(3deg); } to{ transform:translate(-50%,-50%) rotate(-42deg); } }
+  @keyframes flapWingR{ from{ transform:translate(-50%,-50%) rotate(3deg); } to{ transform:translate(-50%,-50%) rotate(42deg); } }
+  @keyframes flapArmL{ from{ transform:translate(-50%,-50%); } to{ transform:translate(-50%,-50%) rotate(-15deg); } }
+  @keyframes flapArmR{ from{ transform:translate(-50%,-50%); } to{ transform:translate(-50%,-50%) rotate(15deg); } }
+
+  /* ---------- LETTER ---------- */
+  .letter-wrap{
+    position:absolute;
+    width:min(82vw, 360px);
+    z-index:8;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, 10%) scale(0.3);
+    opacity:0;
+    transform-origin: 50% 100%;
+    pointer-events:none;
+  }
+  
+  /* Letter slides UP out of the envelope, holds at a modest size while
+     the (now empty) envelope falls away, then unfurls to reading size. */
+  .stage.opened .letter-wrap{
+    animation: extractLetter 2.3s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s forwards;
+  }
+
+  @keyframes extractLetter {
+    0%   { top: 60%; transform: translate(-50%, 15%) scale(0.15) rotate(0deg); opacity: 0; }
+    12%  { opacity: 1; }
+    35%  { top: 52%; transform: translate(-50%, -15%) scale(0.82) rotate(-2deg); opacity: 1; }
+    70%  { top: 52%; transform: translate(-50%, -15%) scale(0.82) rotate(-2deg); opacity: 1; }
+    100% { top: 44%; transform: translate(-50%, -50%) scale(1) rotate(-1.5deg); opacity: 1; pointer-events: auto; }
+  }
+
+  .letter{
+    position:relative;
+    width:100%;
+    max-height:70vh;
+    overflow-y:auto;
+    background:
+      radial-gradient(ellipse 140% 100% at 50% 0%, rgba(255,255,255,0.06), transparent 60%),
+      linear-gradient(175deg, var(--parchment) 0%, var(--parchment-dark) 100%);
+    border:1px solid var(--parchment-edge);
+    border-radius:2px;
+    padding:clamp(1.4rem, 6vw, 2.6rem) clamp(1.3rem, 6vw, 2.4rem);
+    box-shadow: 0 30px 50px rgba(0,0,0,0.6), inset 0 0 40px rgba(120,90,40,0.12);
+  }
+  .letter::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(120,90,40,0.05) 0px, transparent 1px 3px);
+    opacity:0.5;
+    pointer-events:none;
+  }
+
+  .letter-greeting{
+    font-family:'Mrs Saint Delafield', cursive;
+    color:var(--ink);
+    font-size:clamp(1.5rem, 6vw, 2.1rem);
+    margin:0 0 0.9em 0;
+    opacity:0;
+  }
+  .stage.opened .letter-greeting{ animation: lineIn 0.7s ease forwards 2.6s; }
+
+  .poem-line{
+    font-style:italic;
+    font-weight:500;
+    color:var(--ink);
+    font-size:clamp(1.05rem, 4vw, 1.28rem);
+    line-height:1.65;
+    margin:0 0 0.55em 0;
+    opacity:0;
+    transform:translateY(10px);
+  }
+  .stage.opened .poem-line{ animation: lineIn 0.8s ease forwards; }
+
+  @keyframes lineIn{
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .letter-sign{
+    font-family:'Mrs Saint Delafield', cursive;
+    color:var(--ink-soft);
+    font-size:clamp(1.3rem, 5vw, 1.7rem);
+    margin-top:1em;
+    text-align:right;
+    opacity:0;
+  }
+  .stage.opened .letter-sign{ animation: lineIn 0.8s ease forwards; }
+
+  .replay{
+    all:unset;
+    display:block;
+    margin:1.6em auto 0 auto;
+    width:fit-content;
+    cursor:pointer;
+    font-family:'Cinzel', serif;
+    font-size:0.68rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--gold-dim);
+    border-bottom:1px solid transparent;
+    opacity:0;
+    transition:color 0.3s ease, border-color 0.3s ease;
+  }
+  .replay:hover{ color:var(--gold-bright); border-color:var(--gold-bright); }
+  .stage.opened .replay{ animation: lineIn 0.8s ease forwards; }
+
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="desk-grain"></div>
+  <div class="glow glow-a"></div>
+  <div class="glow glow-b"></div>
+  <div id="motes"></div>
+
+  <div class="stage" id="stage">
+    
+    <!-- INITIAL TRIGGER BUTTON -->
+    <button class="call-btn" id="callBtn">Call Hedwig</button>
+
+    <!-- OWL -->
+    <div class="owl">
+      <div class="owl-frame">
+        <div class="tailbot"></div>
+        <div class="tailtop"></div>
+
+        <div class="wingright"></div>
+        <div class="armpitright"></div>
+
+        <div class="shinright"></div>
+        <div class="shinleft"></div>
+
+        <div class="thighright"></div>
+        <div class="thighleft"></div>
+
+        <div class="footright"></div>
+        <div class="footleft"></div>
+
+        <div class="bod"></div>
+        <div class="headback"></div>
+
+        <div class="spot0"></div>
+        <div class="spot1"></div>
+        <div class="spot2"></div>
+        <div class="spot3"></div>
+        <div class="spot4"></div>
+        <div class="spot5"></div>
+        <div class="spot6"></div>
+        <div class="spot7"></div>
+        <div class="spot8"></div>
+        <div class="spot9"></div>
+
+        <div class="chest"></div>
+        <div class="head"></div>
+
+        <div class="wingleft"></div>
+        <div class="armpitleft"></div>
+
+        <div class="beak"></div>
+        <div class="nose"></div>
+        <div class="eyeleft"></div>
+        <div class="eyeright"></div>
+        <div class="irisleft"></div>
+        <div class="irisright"></div>
+        <div class="lightleft"></div>
+        <div class="lightright"></div>
+      </div>
+      <div class="carried-letter"></div>
+    </div>
+
+    <!-- ENVELOPE -->
+    <button class="envelope-btn" id="envelopeBtn" aria-label="Open the letter">
+      <div class="envelope">
+        <div class="env-back"></div>
+        <!-- Text nodes below are filled from CONFIG in the script. -->
+        <div class="env-address" id="envAddress"></div>
+        <div class="env-flap"></div>
+        <div class="seal">
+          <div class="seal-emblem">
+            <!-- Hogwarts crest: quartered shield, central H, banner beneath -->
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <g fill="none" stroke="var(--gold-bright)" stroke-width="4.5"
+                 stroke-linejoin="round" stroke-linecap="round" opacity="0.9">
+                <!-- shield outline -->
+                <path d="M24 16 H76 V50 C76 70 64 83 50 90 C36 83 24 70 24 50 Z"/>
+                <!-- quartering -->
+                <path d="M50 16 V90"/>
+                <path d="M24 50 H76"/>
+                <!-- banner tips -->
+                <path d="M10 78 L28 74 M90 78 L72 74"/>
+              </g>
+              <!-- central roundel -->
+              <circle cx="50" cy="50" r="16" fill="var(--wax-dark)"
+                      stroke="var(--gold-bright)" stroke-width="4.5" opacity="0.95"/>
+              <!-- letter H -->
+              <g fill="var(--gold-bright)">
+                <rect x="42" y="41" width="4.5" height="18" rx="1"/>
+                <rect x="53.5" y="41" width="4.5" height="18" rx="1"/>
+                <rect x="42" y="48" width="16" height="4" rx="1"/>
+              </g>
+            </svg>
+          </div>
+          <div class="seal-half left"></div>
+          <div class="seal-half right"></div>
+        </div>
+      </div>
+      <div class="hint">Tap to open</div>
+    </button>
+
+    <!-- LETTER -->
+    <div class="letter-wrap">
+      <div class="letter">
+        <p class="letter-greeting" id="letterGreeting"></p>
+        <div id="poemBody"></div>
+        <p class="letter-sign" id="letterSign"></p>
+        <button class="replay" id="replayBtn">Read it again</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+
+  /* ======================================================
+     EDIT THIS SECTION to personalize the letter.
+     ====================================================== */
+  const CONFIG = {
+    // The two names are written once here. Every phrase below reuses them
+    // via {to} / {from}, so renaming means editing a single line.
+    to:   "Sanjana",
+    from: "Varun",
+
+    address:   "To {to}",
+    postmark:  "by Owl Post",
+    greeting:  "My Dearest {to},",
+    signature: "- Forever yours, {from}",
+
+    poem: [
+    "I wasn't ready for what I would find,",
+    "So I played it cool, with the gates locked in my mind.",
+    "Until you almost left, tired of the doubt,",
+    "Saying, \"It's been two months, we should be all over each other by now.\"",
+    "",
+    "That broke the act, and I told you the truth:",
+    "I was already obsessed, just terrified of being \"too much\" for you.",
+    "Now I look back at the kisses, the tight ribcage hugs, and the smiles,",
+    "And feel like the stupidest guy for wasting those early miles.",
+    "",
+    "Because you are the girl dreaming of chai in the rain,",
+    "Who stands right beside me through panic and pain.",
+    "With matching soap holders and a tiny home of our own,",
+    "You turned a guarded heart into a place you call home.",
+    "",
+    "You will never once have to ask how you look in my eyes,",
+    "I will spend my whole life making sure you realize.",
+    "You're the one who can silence the noise in my head,",
+    "And make me feel safe when I'm hanging by a thread.",
+    "",
+    "But I'll drop the regret for the days that flew past,",
+    "Because what we are building is wired to last.",
+    "I might have been foolish right at the start of our climb,",
+    "But we have eternity to make up for lost time."
+    ]
+  };
+  /* ====================================================== */
+
+  const $ = document.getElementById.bind(document);
+  const stage = $('stage');
+  const callBtn = $('callBtn');
+  const envelopeBtn = $('envelopeBtn');
+  const replayBtn = $('replayBtn');
+  const poemBody = $('poemBody');
+  const letterSign = $('letterSign');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Substitutes {to} / {from} so the names live in exactly one place.
+  function fill(template){
+    return template.replace(/\{(to|from)\}/g, function(_, key){ return CONFIG[key]; });
+  }
+
+  $('envAddress').append(fill(CONFIG.address), Object.assign(
+    document.createElement('span'), { textContent: fill(CONFIG.postmark) }
+  ));
+  $('letterGreeting').textContent = fill(CONFIG.greeting);
+  letterSign.textContent = fill(CONFIG.signature);
+
+  // Sequence is: letter emerges from the envelope (0.3s-1.1s) -> envelope
+  // falls away while the letter holds clear of it (1.1s-1.9s) -> letter
+  // unfurls to full reading size (1.9s-2.6s) -> poem text fades in.
+  // LETTER_READY marks that last moment, so text never appears early.
+  const LETTER_READY = 2.6;
+  let lineDelay = 0.2;
+  const poemFrag = document.createDocumentFragment();
+  CONFIG.poem.forEach(function(line){
+    if(line.trim() === ''){
+      lineDelay += 0.18;   // a blank line is a stanza pause, not a paragraph
+      return;
+    }
+    const p = document.createElement('p');
+    p.className = 'poem-line';
+    p.textContent = line;
+    p.style.animationDelay = (LETTER_READY + lineDelay) + 's';
+    poemFrag.appendChild(p);
+    lineDelay += 0.42;
+  });
+  poemBody.appendChild(poemFrag);
+  letterSign.style.animationDelay = (LETTER_READY + lineDelay + 0.3) + 's';
+  replayBtn.style.animationDelay = (LETTER_READY + lineDelay + 0.6) + 's';
+
+  const moteFrag = document.createDocumentFragment();
+  const moteCount = window.innerWidth < 600 ? 10 : 16;
+  for(let i=0;i<moteCount;i++){
+    const m = document.createElement('div');
+    m.className = 'mote';
+    m.style.left = (Math.random()*100) + '%';
+    m.style.bottom = (Math.random()*30) + '%';
+    m.style.setProperty('--drift', (Math.random()*40 - 20) + 'px');
+    m.style.animationDelay = (Math.random()*9) + 's';
+    m.style.animationDuration = (7 + Math.random()*5) + 's';
+    moteFrag.appendChild(m);
+  }
+  $('motes').appendChild(moteFrag);
+
+  // STEP 1: Call the bird
+  function summonOwl(){
+    if(stage.classList.contains('flying')) return;
+    
+    if(reduceMotion){
+      stage.classList.add('delivered');
+      return;
+    }
+    
+    stage.classList.add('flying');
+    
+    setTimeout(function(){
+      stage.classList.add('delivered');
+    }, 1500); 
+  }
+
+  // STEP 2: Open the delivered letter
+  function openLetter(){
+    if(!stage.classList.contains('delivered') || stage.classList.contains('opened')) return;
+    stage.classList.add('opened');
+  }
+
+  function reset(){
+    stage.classList.remove('opened', 'flying', 'delivered');
+    void stage.offsetWidth;
+  }
+
+  callBtn.addEventListener('click', summonOwl);
+  
+  envelopeBtn.addEventListener('click', openLetter);
+  envelopeBtn.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      openLetter();
+    }
+  });
+  
+  replayBtn.addEventListener('click', reset);
+
+})();
+</script>
+
+</body>
+</html>
